@@ -102,3 +102,10 @@ Let the first attempt be defined by the string 1010001110. Its result is the num
 Let the first attempt be defined by the string 0000011111. Its result is the number 3: the first wrong answer is the answer to the first question, and the second one is to the third question.
 
 If the solution terminates correctly after the above two attempts, the exam result is 11.
+
+# 与えられているもの
+問題に対するスコア
+
+
+# 未知のもの
+完全な解答
