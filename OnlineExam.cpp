@@ -26,19 +26,50 @@ string int2string(int number){
 int g_answer[N];
 int g_tempAnswer[N];
 int g_maxScore;
+const int FIRST_TRY_COUNT = 5;
+
+struct Block {
+  int length;
+  int correctCount;
+  double correctRate;
+
+  Block(int cc = 0, int len = 0) {
+    this->correctCount = cc;
+    this->length = len;
+    this->correctRate = correctCount / (double) length;
+  }
+
+  bool operator >(const Block &b) const{
+    return correctRate > b.correctRate;
+  }    
+};
+
+//priority_queue<Block, vector<Block>, greater<Block> > pque;
 
 class OnlineExam {
   public:
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
-      createRandomAnswer();
+      memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
+      g_maxScore = 0;
 
-      string answer = answer2string();
-      g_maxScore = sendAnswer(answer);
+      for (int i = 0; i < FIRST_TRY_COUNT; i++) {
+        createRandomAnswer();
+
+        string answer = answer2string();
+        int score = sendAnswer(answer);
+
+        if (g_maxScore < score) {
+          g_maxScore = score;
+          memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
+        } else {
+          rollback();
+        }
+      }
     }
 
     void run() {
-      for (int turn = 0; turn < X-2; turn++) {
+      for (int turn = 0; turn < X-FIRST_TRY_COUNT; turn++) {
         updateAnswer(turn);
 
         string answer = answer2string();
