@@ -31,21 +31,10 @@ class OnlineExam {
   public:
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
+      createRandomAnswer();
 
-      string answer0 = answer2string();
-      int score0 = sendAnswer(answer0);
-
-      memset(g_answer, 1, sizeof(g_answer));
-      string answer1 = answer2string();
-      int score1 = sendAnswer(answer1);
-
-      if (score0 < score1) {
-        memset(g_answer, 1, sizeof(g_answer));
-        g_maxScore = score1;
-      } else {
-        memset(g_answer, 0, sizeof(g_answer));
-        g_maxScore = score0;
-      }
+      string answer = answer2string();
+      g_maxScore = sendAnswer(answer);
     }
 
     void run() {
@@ -68,9 +57,9 @@ class OnlineExam {
     void updateAnswer(int turn) {
       memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
 
-      int index = turn*50;
+      int index = turn*45;
 
-      for (int i = 0; i < 50; i++) {
+      for (int i = 0; i < 45; i++) {
         if (g_answer[index+i] == 0) {
           g_answer[index+i] = 1;
         } else {
@@ -105,18 +94,14 @@ class OnlineExam {
       return answer;
     }
 
-    string createRandomAnswer() {
-      string answer = "";
-
+    void  createRandomAnswer() {
       for (int i = 0; i < N; i++) {
         if (xor128()%2 == 0) {
-          answer += "0";
+          g_answer[i] = 0;
         } else {
-          answer += "1";
+          g_answer[i] = 1;
         }
       }
-
-      return answer;
     }
 };
 
