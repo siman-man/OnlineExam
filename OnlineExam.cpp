@@ -23,6 +23,7 @@ bool g_commit[N];
 int g_bestAnswer[N];
 int g_definiteValue[N];
 int g_maxScore;
+int g_turn;
 const int FIRST_TRY_COUNT = 2;
 
 class OnlineExam {
@@ -52,14 +53,14 @@ class OnlineExam {
     }
 
     void run() {
-      for (int turn = 0; turn < X-FIRST_TRY_COUNT; turn++) {
+      for (g_turn = 0; g_turn < X-FIRST_TRY_COUNT; g_turn++) {
         commit(g_maxScore-1);
-        updateAnswer(turn);
+        updateAnswer();
       }
     }
 
-    void updateAnswer(int turn) {
-      int index = turn*42;
+    void updateAnswer() {
+      int index = g_turn*42;
 
       flipValue(index, index+42);
 
@@ -74,7 +75,7 @@ class OnlineExam {
         rollback();
       }
 
-      fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", turn, score, g_maxScore);
+      fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
     }
 
     void commit(int index) {
