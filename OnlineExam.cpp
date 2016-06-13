@@ -39,6 +39,8 @@ class OnlineExam {
         string answer = answer2string();
         int score = sendAnswer(answer);
 
+        commit(score-1);
+
         if (g_maxScore < score) {
           g_maxScore = score;
           memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
