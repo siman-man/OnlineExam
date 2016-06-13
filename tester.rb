@@ -44,7 +44,7 @@ class Tester
 
     @high_score = 0 if @high_score < 3000
 
-    puts "Score = #{@high_score}"
+    puts "Score = #{@high_score-4000}"
   end
 
   def calc_score(ans)
