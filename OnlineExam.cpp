@@ -58,9 +58,10 @@ class OnlineExam {
     }
 
     void updateAnswer() {
-      int index = g_turn*42;
+      int range = 42;
+      int index = g_turn*range;
 
-      flipValue(index, index+42);
+      flipValue(index, index+range);
 
       string answer = answer2string();
       int score = sendAnswer(answer);
