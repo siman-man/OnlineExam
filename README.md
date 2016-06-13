@@ -122,3 +122,5 @@ If the solution terminates correctly after the above two attempts, the exam resu
 点数が上昇した時に、修正された回答の期待値を考える(スコアアップ * 0.5程度？)
 
 2000 / 5000 = 0.4 正解率60%まで上げることが目的
+
+取得した得点のその位置は必ず不正解 (その位置で打ち切られたため)

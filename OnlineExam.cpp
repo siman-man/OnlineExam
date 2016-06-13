@@ -21,6 +21,7 @@ unsigned long long xor128(){
 int g_answer[N];
 bool g_commit[N];
 int g_bestAnswer[N];
+int g_definiteValue[N];
 int g_maxScore;
 const int FIRST_TRY_COUNT = 5;
 
@@ -29,6 +30,7 @@ class OnlineExam {
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
       memset(g_commit, false, sizeof(g_commit));
+      memset(g_definiteValue, -1, sizeof(g_definiteValue));
       memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       g_maxScore = 0;
 
@@ -52,15 +54,14 @@ class OnlineExam {
     void run() {
       for (int turn = 0; turn < X-FIRST_TRY_COUNT; turn++) {
         commit(g_maxScore-1);
-
         updateAnswer(turn);
       }
     }
 
     void updateAnswer(int turn) {
-      int index = turn*45;
+      int index = turn*42;
 
-      flipValue(index, index+45);
+      flipValue(index, index+42);
 
       string answer = answer2string();
       int score = sendAnswer(answer);
@@ -73,12 +74,13 @@ class OnlineExam {
         rollback();
       }
 
-      fprintf(stderr,"sc = %d, max sc = %d\n", score, g_maxScore);
+      fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", turn, score, g_maxScore);
     }
 
     void commit(int index) {
       if (!g_commit[index]) {
         g_answer[index] ^= 1;
+        g_definiteValue[index] = g_answer[index];
         g_commit[index] = true;
       }
     }
