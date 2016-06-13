@@ -3,6 +3,7 @@
 #include <random>
 #include <string.h>
 #include <sstream>
+#include <queue>
 
 using namespace std;
 
@@ -29,22 +30,25 @@ int g_maxScore;
 const int FIRST_TRY_COUNT = 5;
 
 struct Block {
+  int from;
+  int to;
   int length;
-  int correctCount;
+  int wc;
   double correctRate;
 
-  Block(int cc = 0, int len = 0) {
-    this->correctCount = cc;
-    this->length = len;
-    this->correctRate = correctCount / (double) length;
+  Block(int wc = 0, int from = 0, int to = 0) {
+    this->wc = wc;
+    this->from = from;
+    this->to = to;
+    this->length = abs(to - from);
   }
 
   bool operator >(const Block &b) const{
-    return correctRate > b.correctRate;
+    return wc > b.wc;
   }    
 };
 
-//priority_queue<Block, vector<Block>, greater<Block> > pque;
+priority_queue<Block, vector<Block>, greater<Block> > g_pque;
 
 class OnlineExam {
   public:
@@ -66,23 +70,42 @@ class OnlineExam {
           rollback();
         }
       }
+
+      fprintf(stderr,"First Score = %d\n", g_maxScore);
+
+      int mid = g_maxScore/2;
+      g_pque.push(Block(1000, 0, mid));
+      g_pque.push(Block(1000, mid+1, g_maxScore-1));
     }
 
     void run() {
       for (int turn = 0; turn < X-FIRST_TRY_COUNT; turn++) {
-        updateAnswer(turn);
 
-        string answer = answer2string();
-        int score = sendAnswer(answer);
-
-        if (g_maxScore < score) {
-          g_maxScore = score;
+        if (g_pque.empty()) {
+          updateAnswer(turn);
         } else {
-          rollback();
+          Block block = g_pque.top(); g_pque.pop();
+          updateAnswerBlock(block);
         }
 
-        fprintf(stderr,"%d: %d\n", turn, score);
       }
+    }
+
+    void updateAnswerBlock(Block block) {
+      memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
+
+      flipValue(block.from, block.to);
+
+      string answer = answer2string();
+      int score = sendAnswer(answer);
+
+      if (g_maxScore < score) {
+        g_maxScore = score;
+      } else {
+        rollback();
+      }
+
+      //fprintf(stderr,"score = %d, max score = %d\n", score, g_maxScore);
     }
 
     void updateAnswer(int turn) {
@@ -90,12 +113,25 @@ class OnlineExam {
 
       int index = turn*45;
 
-      for (int i = 0; i < 45; i++) {
-        if (g_answer[index+i] == 0) {
-          g_answer[index+i] = 1;
-        } else {
-          g_answer[index+i] = 0;
-        }
+      flipValue(index, index+45);
+      g_answer[g_maxScore-1] ^= 1;
+
+      string answer = answer2string();
+      int score = sendAnswer(answer);
+
+      if (g_maxScore < score) {
+        g_maxScore = score;
+      } else {
+        rollback();
+      }
+
+      //fprintf(stderr,"score = %d, max score = %d\n", score, g_maxScore);
+    }
+
+    void flipValue(int from, int to) {
+      fprintf(stderr,"from = %d, to = %d\n", from, to);
+      for (int i = from; i < to; i++) {
+        g_answer[i] ^= 1;
       }
     }
 
