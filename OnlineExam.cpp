@@ -20,7 +20,7 @@ unsigned long long xor128(){
 
 int g_answer[N];
 bool g_commit[N];
-int g_tempAnswer[N];
+int g_bestAnswer[N];
 int g_maxScore;
 const int FIRST_TRY_COUNT = 5;
 
@@ -29,7 +29,7 @@ class OnlineExam {
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
       memset(g_commit, false, sizeof(g_commit));
-      memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
+      memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       g_maxScore = 0;
 
       for (int i = 0; i < FIRST_TRY_COUNT; i++) {
@@ -40,7 +40,7 @@ class OnlineExam {
 
         if (g_maxScore < score) {
           g_maxScore = score;
-          memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
+          memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
         } else {
           rollback();
         }
@@ -58,8 +58,6 @@ class OnlineExam {
     }
 
     void updateAnswer(int turn) {
-      memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
-
       int index = turn*45;
 
       flipValue(index, index+45);
@@ -69,6 +67,7 @@ class OnlineExam {
 
       if (g_maxScore < score) {
         g_maxScore = score;
+        memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       } else {
         commit(score-1);
         rollback();
@@ -86,17 +85,15 @@ class OnlineExam {
 
     void flipValue(int from, int to) {
       for (int i = from; i < to; i++) {
-        if (!g_commit[i]) {
-          g_answer[i] ^= 1;
-        }
+        if (g_commit[i]) continue;
+        g_answer[i] ^= 1;
       }
     }
 
     void rollback() {
       for (int i = 0; i < N; i++) {
-        if (!g_commit[i]) {
-          g_answer[i] = g_tempAnswer[i];
-        }
+        if (g_commit[i]) continue;
+        g_answer[i] = g_bestAnswer[i];
       }
     }
 
