@@ -2,7 +2,6 @@
 #include <iostream>
 #include <random>
 #include <string.h>
-#include <sstream>
 #include <queue>
 #include <cassert>
 
@@ -19,38 +18,11 @@ unsigned long long xor128(){
   return (rw=(rw^(rw>>19))^(rt^(rt>>8)));
 }
 
-string int2string(int number){
-  stringstream ss; 
-  ss << number;
-  return ss.str();
-}
-
 int g_answer[N];
 bool g_commit[N];
 int g_tempAnswer[N];
 int g_maxScore;
 const int FIRST_TRY_COUNT = 5;
-
-struct Block {
-  int from;
-  int to;
-  int length;
-  int wc;
-  double correctRate;
-
-  Block(int wc = 0, int from = 0, int to = 0) {
-    this->wc = wc;
-    this->from = from;
-    this->to = to;
-    this->length = abs(to - from);
-  }
-
-  bool operator >(const Block &b) const{
-    return wc > b.wc;
-  }    
-};
-
-priority_queue<Block, vector<Block>, greater<Block> > g_pque;
 
 class OnlineExam {
   public:
@@ -75,42 +47,14 @@ class OnlineExam {
       }
 
       fprintf(stderr,"First Score = %d\n", g_maxScore);
-
-      int mid = g_maxScore/2;
-      g_pque.push(Block(1000, 0, mid));
-      g_pque.push(Block(1000, mid+1, g_maxScore-1));
     }
 
     void run() {
       for (int turn = 0; turn < X-FIRST_TRY_COUNT; turn++) {
-        if (!g_commit[g_maxScore-1]) {
-          commit(g_maxScore-1);
-        }
+        commit(g_maxScore-1);
 
-        if (true || g_pque.empty()) {
-          updateAnswer(turn);
-        } else {
-          Block block = g_pque.top(); g_pque.pop();
-          updateAnswerBlock(block);
-        }
+        updateAnswer(turn);
       }
-    }
-
-    void updateAnswerBlock(Block block) {
-      memcpy(g_tempAnswer, g_answer, sizeof(g_answer));
-
-      flipValue(block.from, block.to);
-
-      string answer = answer2string();
-      int score = sendAnswer(answer);
-
-      if (g_maxScore < score) {
-        g_maxScore = score;
-      } else {
-        rollback();
-      }
-
-      fprintf(stderr,"sc = %d, max sc = %d\n", score, g_maxScore);
     }
 
     void updateAnswer(int turn) {
@@ -126,9 +70,7 @@ class OnlineExam {
       if (g_maxScore < score) {
         g_maxScore = score;
       } else {
-        if (!g_commit[score-1]) {
-          commit(score-1);
-        }
+        commit(score-1);
         rollback();
       }
 
@@ -136,12 +78,13 @@ class OnlineExam {
     }
 
     void commit(int index) {
-      g_answer[index] ^= 1;
-      g_commit[index] = true;
+      if (!g_commit[index]) {
+        g_answer[index] ^= 1;
+        g_commit[index] = true;
+      }
     }
 
     void flipValue(int from, int to) {
-      //fprintf(stderr,"from = %d, to = %d\n", from, to);
       for (int i = from; i < to; i++) {
         if (!g_commit[i]) {
           g_answer[i] ^= 1;
@@ -150,8 +93,6 @@ class OnlineExam {
     }
 
     void rollback() {
-      //memcpy(g_answer, g_tempAnswer, sizeof(g_tempAnswer));
-
       for (int i = 0; i < N; i++) {
         if (!g_commit[i]) {
           g_answer[i] = g_tempAnswer[i];
@@ -171,11 +112,7 @@ class OnlineExam {
       string answer = "";
 
       for (int i = 0; i < N; i++) {
-        if (g_answer[i] == 0) {
-          answer += "0";
-        } else {
-          answer += "1";
-        }
+        answer += '0' + g_answer[i];
       }
 
       return answer;
@@ -183,13 +120,8 @@ class OnlineExam {
 
     void createRandomAnswer() {
       for (int i = 0; i < N; i++) {
-        if (!g_commit[i]) {
-          if (xor128()%2 == 0) {
-            g_answer[i] = 0;
-          } else {
-            g_answer[i] = 1;
-          }
-        }
+        if (g_commit[i]) continue;
+        g_answer[i] = xor128()%2;
       }
     }
 };
