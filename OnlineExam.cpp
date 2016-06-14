@@ -52,6 +52,7 @@ int g_bestAnswer[N];
 int g_maxScore;
 int g_turn;
 map<ll, bool> g_checkList;
+map<ll, bool> g_flip;
 const int FIRST_TRY_COUNT = 2;
 
 class OnlineExam {
@@ -93,22 +94,8 @@ class OnlineExam {
       for (g_turn = 0; g_turn < X-FIRST_TRY_COUNT; g_turn++) {
         commit(g_maxScore-1);
 
-        if (g_pque.empty()) {
-          updateAnswer();
-        } else {
-          Block block = g_pque.top(); g_pque.pop();
-
-          if (g_checkList[block.id]) {
-            if (block.divideCount == 1) {
-              flipValue(block.from, block.to);
-            }
-            g_turn--;
-            continue;
-          } 
-
-          g_checkList[block.id] = true;
-          updateAnswerBlock(block);
-        }
+        Block block = g_pque.top(); g_pque.pop();
+        updateAnswerBlock(block);
       }
     }
 
@@ -127,47 +114,24 @@ class OnlineExam {
       } else {
         commit(score-1);
         rollback();
+
+        if (block.divideCount == 1) {
+          flipValue(block.from2, block.to2);
+        }
       }
 
       int mid = (block.from + block.to) / 2;
       Block b1(diff, block.length/2, block.from, mid);
-      Block b2(diff, block.length/2, mid+1, block.to);
 
       ll id = xor128();
 
       b1.id = id;
       b1.divideCount++;
-      b1.from2 = b2.from;
-      b1.to2 = b2.to;
-
-      b2.id = id;
-      b2.divideCount++;
-      b2.from2 = b1.from;
-      b2.to2 = b1.to;
+      b1.from2 = mid+1;
+      b1.to2 = block.to;
 
       if (block.divideCount == 0) {
         g_pque.push(b1);
-        g_pque.push(b2);
-      }
-
-      fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
-    }
-
-    void updateAnswer() {
-      int range = 42;
-      int index = g_turn*range;
-
-      flipValue(index, index+range);
-
-      string answer = answer2string();
-      int score = sendAnswer(answer);
-
-      if (g_maxScore < score) {
-        g_maxScore = score;
-        memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
-      } else {
-        commit(score-1);
-        rollback();
       }
 
       fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
