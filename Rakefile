@@ -77,7 +77,7 @@ task :test do
   Rake::Task['compile'].invoke
 
   File.open('result.txt', 'w') do |file|
-    1001.upto(1100) do |seed|
+    1001.upto(1200) do |seed|
       puts "seed = #{seed}"
       file.puts("----- !BEGIN! ------")
       file.puts("Seed = #{seed}")
@@ -88,7 +88,7 @@ task :test do
     end
   end
 
-  system('ruby scripts/analyze.rb 100')
+  system('ruby scripts/analyze.rb 200')
 end
 
 task :final do
