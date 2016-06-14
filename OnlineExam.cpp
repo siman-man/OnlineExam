@@ -38,7 +38,7 @@ struct Block {
   }
 
   bool operator >(const Block &b) const{
-    return length - score < b.length - b.score;
+    return length - 5*score < b.length - 5*b.score;
   }    
 };
 
