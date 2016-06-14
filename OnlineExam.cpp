@@ -51,8 +51,6 @@ bool g_commit[N];
 int g_bestAnswer[N];
 int g_maxScore;
 int g_turn;
-map<ll, bool> g_checkList;
-map<ll, bool> g_flip;
 const int FIRST_TRY_COUNT = 2;
 
 class OnlineExam {
