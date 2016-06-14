@@ -79,8 +79,8 @@ class OnlineExam {
         }
       }
 
-      int divide = 50;
-      for (int i = 0; i < 80; i++) {
+      int divide = 55;
+      for (int i = 0; i < 75; i++) {
         Block b(i-N, divide, i*divide, (i+1)*divide);
         b.id = xor128();
         g_pque.push(b);
@@ -128,9 +128,7 @@ class OnlineExam {
       b1.from2 = mid;
       b1.to2 = block.to;
 
-      if (block.divideCount == 0) {
-        g_pque.push(b1);
-      }
+      g_pque.push(b1);
 
       fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
     }
