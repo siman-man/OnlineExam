@@ -115,7 +115,7 @@ class OnlineExam {
         commit(score-1);
         rollback();
 
-        if (block.divideCount == 1) {
+        if (block.divideCount >= 1) {
           flipValue(block.from2, block.to2);
         }
       }
@@ -125,7 +125,7 @@ class OnlineExam {
 
       b1.id = xor128();
       b1.divideCount++;
-      b1.from2 = mid+1;
+      b1.from2 = mid;
       b1.to2 = block.to;
 
       if (block.divideCount == 0) {
