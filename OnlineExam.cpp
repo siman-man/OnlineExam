@@ -123,9 +123,7 @@ class OnlineExam {
       int mid = (block.from + block.to) / 2;
       Block b1(diff, block.length/2, block.from, mid);
 
-      ll id = xor128();
-
-      b1.id = id;
+      b1.id = xor128();
       b1.divideCount++;
       b1.from2 = mid+1;
       b1.to2 = block.to;
