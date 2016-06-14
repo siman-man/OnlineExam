@@ -76,7 +76,7 @@ class OnlineExam {
       }
 
       int divide = 55;
-      for (int i = 0; i < 75; i++) {
+      for (int i = 0; i < 73; i++) {
         Block b(i-N, divide, i*divide, (i+1)*divide);
         b.id = xor128();
         g_pque.push(b);
