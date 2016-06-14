@@ -49,7 +49,7 @@ bool g_commit[N];
 int g_bestAnswer[N];
 int g_maxScore;
 int g_turn;
-const int FIRST_TRY_COUNT = 2;
+const int FIRST_TRY_COUNT = 1;
 
 class OnlineExam {
   public:
@@ -171,7 +171,7 @@ class OnlineExam {
     void createRandomAnswer(int val) {
       for (int i = 0; i < N; i++) {
         if (g_commit[i]) continue;
-        g_answer[i] = val;
+        g_answer[i] = xor128()%2;
       }
     }
 };
