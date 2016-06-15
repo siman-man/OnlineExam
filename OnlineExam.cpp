@@ -60,7 +60,7 @@ class OnlineExam {
       g_maxScore = 0;
 
       for (int i = 0; i < FIRST_TRY_COUNT; i++) {
-        createRandomAnswer(i);
+        createRandomAnswer();
 
         string answer = answer2string();
         int score = sendAnswer(answer);
@@ -168,7 +168,7 @@ class OnlineExam {
       return answer;
     }
 
-    void createRandomAnswer(int val) {
+    void createRandomAnswer() {
       for (int i = 0; i < N; i++) {
         if (g_commit[i]) continue;
         g_answer[i] = xor128()%2;
