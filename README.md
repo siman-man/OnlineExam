@@ -110,6 +110,10 @@ If the solution terminates correctly after the above two attempts, the exam resu
 # 未知のもの
 完全な解答
 
+# 別の問題に置き換える
+
+98個のクエリの結果が与えられるので、その結果からもっとも高得点が取れる文字列を構成せよ
+
 # 考察
 
 5000点が点数の上限なので、間違いを減らす or 正解を増やしていく方針となる
