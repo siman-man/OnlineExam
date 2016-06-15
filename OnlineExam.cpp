@@ -20,7 +20,6 @@ unsigned long long xor128(){
 }
 
 struct Block {
-  ll id;
   int from;
   int to;
   int score;
@@ -78,7 +77,6 @@ class OnlineExam {
       int divide = 56;
       for (int i = 0; i < 72; i++) {
         Block b(i-N, divide, i*divide, (i+1)*divide);
-        b.id = xor128();
         g_pque.push(b);
       }
 
@@ -119,7 +117,6 @@ class OnlineExam {
       int mid = (block.from + block.to) / 2;
       Block b1(diff, block.length/2, block.from, mid);
 
-      b1.id = xor128();
       b1.divideCount++;
       b1.from2 = mid;
       b1.to2 = block.to;
