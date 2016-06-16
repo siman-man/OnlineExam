@@ -41,7 +41,20 @@ struct Block {
   }    
 };
 
+struct Query {
+  int from;
+  int to;
+  int score;
+
+  Query(int from = 0, int to = 0, int score = 0) {
+    this->from = from;
+    this->to = to;
+    this->score = score;
+  }
+};
+
 priority_queue<Block, vector<Block>, greater<Block> > g_pque;
+vector<Query> g_queryList;
 
 int g_answer[N];
 bool g_commit[N];
@@ -145,6 +158,21 @@ class OnlineExam {
         if (g_commit[i]) continue;
         g_answer[i] = g_bestAnswer[i];
       }
+    }
+
+    void sendQuery(int from, int to) {
+      flipValue(from, to);
+
+      int score = getScore();
+      g_queryList.push_back(Query(from, to, score));
+
+      rollback();
+    }
+
+    int getScore() {
+      string answer = answer2string();
+      int score = sendAnswer(answer);
+      return score;
     }
 
     int sendAnswer(string answer) {
