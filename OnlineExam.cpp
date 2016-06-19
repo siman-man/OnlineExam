@@ -3,6 +3,7 @@
 #include <random>
 #include <string.h>
 #include <queue>
+#include <cassert>
 
 using namespace std;
 
@@ -20,24 +21,20 @@ unsigned long long xor128(){
 }
 
 struct Block {
+  int diff;
   int from;
   int to;
-  int score;
   int length;
-  int divideCount;
-  int from2;
-  int to2;
 
-  Block(int score = 0, int length = 0, int from = 0, int to = 0) {
+  Block(int diff = 0, int length = 0, int from = 0, int to = 0) {
+    this->diff = diff;
     this->from = from;
     this->to = to;
-    this->score = score;
     this->length = length;
-    this->divideCount = 0;
   }
 
   bool operator >(const Block &b) const{
-    return length - 5*score < b.length - 5*b.score;
+    return abs(diff) < abs(b.diff);
   }    
 };
 
@@ -45,9 +42,12 @@ priority_queue<Block, vector<Block>, greater<Block> > g_pque;
 
 int g_answer[N];
 bool g_commit[N];
+int g_commitValue[N];
 int g_bestAnswer[N];
 int g_maxScore;
+int g_baseScore;
 int g_turn;
+vector<Block> g_flipBlockList;
 const int FIRST_TRY_COUNT = 1;
 
 class OnlineExam {
@@ -55,96 +55,158 @@ class OnlineExam {
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
       memset(g_commit, false, sizeof(g_commit));
+      memset(g_commitValue, -1, sizeof(g_commitValue));
       memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       g_maxScore = 0;
 
-      for (int i = 0; i < FIRST_TRY_COUNT; i++) {
-        createRandomAnswer();
+      createRandomAnswer();
+      int score = getScore();
+      commit(score-1);
 
-        string answer = answer2string();
-        int score = sendAnswer(answer);
+      g_maxScore = score;
+      memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
 
-        commit(score-1);
+      flipValue(0, 4096);
+      score = getScore();
+      commit(score-1);
+      g_baseScore = score;
 
-        if (g_maxScore < score) {
-          g_maxScore = score;
-          memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
-        } else {
-          rollback();
-        }
-      }
-
-      int divide = 56;
-      for (int i = 0; i < 72; i++) {
-        Block b(i-N, divide, i*divide, (i+1)*divide);
-        g_pque.push(b);
-      }
+      Block b(g_baseScore - g_maxScore, 4096, 0, 4096);
+      g_pque.push(b);
 
       int qsize = g_pque.size();
-      fprintf(stderr,"First Score = %d, queue size = %d\n", g_maxScore, qsize);
+      fprintf(stderr,"Base Score = %d, queue size = %d\n", g_baseScore, qsize);
+      rollback();
     }
 
     void run() {
-      for (g_turn = 0; g_turn < X-FIRST_TRY_COUNT; g_turn++) {
+      for (g_turn = 0; g_turn < X-2; g_turn++) {
         commit(g_maxScore-1);
 
-        Block block = g_pque.top(); g_pque.pop();
-        updateAnswerBlock(block);
-      }
-    }
+        assert(!g_pque.empty());
 
-    void updateAnswerBlock(Block block) {
-      fprintf(stderr,"%d -> %d, block score = %d\n", block.from, block.to, block.score);
-
-      flipValue(block.from, block.to);
-
-      string answer = answer2string();
-      int score = sendAnswer(answer);
-      int diff = abs(score - g_maxScore);
-
-      if (g_maxScore < score) {
-        g_maxScore = score;
-        memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
-      } else {
-        commit(score-1);
-        rollback();
-
-        if (block.divideCount >= 1) {
-          flipValue(block.from2, block.to2);
+        if (g_turn == 97) {
+          lastSubmit();
+        } else {
+          Block block = g_pque.top(); g_pque.pop();
+          updateAnswerBlock(block);
         }
       }
 
-      int mid = (block.from + block.to) / 2;
-      Block b1(diff, block.length/2, block.from, mid);
+      /*
+      while (!g_pque.empty()) {
+        Block block = g_pque.top(); g_pque.pop();
 
-      b1.divideCount++;
-      b1.from2 = mid;
-      b1.to2 = block.to;
+        fprintf(stderr,"%d -> %d, wc = %4.2f\n", block.from, block.to, block.wc);
+      }
+      */
+    }
 
-      g_pque.push(b1);
+    void lastSubmit() {
+      int commitSize = 0;
 
-      fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
+      for (int i = 0; i < N; i++) {
+        if (g_commitValue[i] >= 0) {
+          g_answer[i] = g_commitValue[i];
+          commitSize++;
+        }
+      }
+
+      int bsize = g_flipBlockList.size();
+      for (int i = 0; i < bsize; i++) {
+        Block block = g_flipBlockList[i];
+        flipValue(block.from, block.to);
+      }
+
+      while (!g_pque.empty()) {
+        Block block = g_pque.top(); g_pque.pop();
+
+        if (block.diff > 0) {
+          flipValue(block.from, block.to);
+        }
+      }
+
+      int score = getScore();
+      fprintf(stderr,"Last score = %d, commit size = %d\n", score, commitSize);
+    }
+
+    void updateAnswerBlock(Block block) {
+      fprintf(stderr,"turn %d: Block %d -> %d\n", g_turn, block.from, block.to);
+      int mid = (block.from + block.to) / 2.0;
+      flipValue(block.from, mid);
+
+      string answer = answer2string();
+      int score = sendAnswer(answer);
+      int diffR = score - g_baseScore;
+      int diffL = block.diff - diffR;
+      double expect = abs(diffR)/4.0;
+      commit(score-1);
+
+      fprintf(stderr," %d -> %d, diffR = %d, diffL = %d, score = %d, expect = %4.2f\n",
+          block.from, mid, diffR, diffL, score, expect);
+
+      rollback();
+
+      if (block.length/10.0 < expect) {
+        fprintf(stderr,"Skip!\n");
+        return;
+      }
+      if (block.length <= 16) {
+        fprintf(stderr,"Stop!\n");
+        return;
+      }
+
+      Block b1(diffR, block.length/2.0, block.from, mid);
+      Block b2(diffL, block.length/2.0, mid, block.to);
+
+      if (block.length/20.0 < expect) {
+        fprintf(stderr,"b1 Skip!\n");
+
+        if (diffR > 0) {
+          g_flipBlockList.push_back(b1);
+        }
+      } else {
+        g_pque.push(b1);
+        fprintf(stderr,"Add %d -> %d, size = %d, diffR = %d\n", block.from, mid, block.length/2, diffR);
+      }
+
+      if (block.length/20.0 < abs(diffL)/4.0) {
+        fprintf(stderr,"b2 Skip!\n");
+
+        if (diffL > 0) {
+          g_flipBlockList.push_back(b2);
+        }
+      } else {
+        g_pque.push(b2);
+        fprintf(stderr,"Add %d -> %d, size = %d, diffL = %d\n", mid, block.to, block.length/2, diffL);
+      }
+
+      //fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
     }
 
     void commit(int index) {
       if (!g_commit[index]) {
-        g_answer[index] ^= 1;
         g_commit[index] = true;
+        g_commitValue[index] = g_answer[index] ^ 1;
       }
     }
 
     void flipValue(int from, int to) {
       for (int i = from; i < to; i++) {
-        if (g_commit[i]) continue;
         g_answer[i] ^= 1;
       }
     }
 
     void rollback() {
       for (int i = 0; i < N; i++) {
-        if (g_commit[i]) continue;
         g_answer[i] = g_bestAnswer[i];
       }
+    }
+
+    int getScore() {
+      string answer = answer2string();
+      int score = sendAnswer(answer);
+      return score;
     }
 
     int sendAnswer(string answer) {
