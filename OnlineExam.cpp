@@ -20,24 +20,24 @@ unsigned long long xor128(){
 }
 
 struct Block {
+  int diff;
   int from;
   int to;
-  int score;
   int length;
   int divideCount;
   int from2;
   int to2;
 
-  Block(int score = 0, int length = 0, int from = 0, int to = 0) {
+  Block(int diff = 0, int length = 0, int from = 0, int to = 0) {
+    this->diff = diff;
     this->from = from;
     this->to = to;
-    this->score = score;
     this->length = length;
     this->divideCount = 0;
   }
 
   bool operator >(const Block &b) const{
-    return length - 5*score < b.length - 5*b.score;
+    return length - 5*abs(diff) < b.length - 5*abs(b.diff);
   }    
 };
 
@@ -76,7 +76,7 @@ class OnlineExam {
 
       int divide = 56;
       for (int i = 0; i < 72; i++) {
-        Block b(i-N, divide, i*divide, (i+1)*divide);
+        Block b(0, divide, i*divide, (i+1)*divide);
         g_pque.push(b);
       }
 
@@ -94,13 +94,13 @@ class OnlineExam {
     }
 
     void updateAnswerBlock(Block block) {
-      fprintf(stderr,"%d -> %d, block score = %d\n", block.from, block.to, block.score);
+      fprintf(stderr,"%d -> %d, block diff = %d\n", block.from, block.to, block.diff);
 
       flipValue(block.from, block.to);
 
       string answer = answer2string();
       int score = sendAnswer(answer);
-      int diff = abs(score - g_maxScore);
+      int diff = score - g_maxScore;
 
       if (g_maxScore < score) {
         g_maxScore = score;
@@ -109,7 +109,7 @@ class OnlineExam {
         commit(score-1);
         rollback();
 
-        if (block.divideCount >= 1) {
+        if (block.divideCount >= 1 && block.diff > diff) {
           flipValue(block.from2, block.to2);
         }
       }
