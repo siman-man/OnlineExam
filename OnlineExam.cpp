@@ -70,7 +70,7 @@ class OnlineExam {
       }
 
       int divide = 56;
-      for (int i = 0; i < 72; i++) {
+      for (int i = 0; i < 71; i++) {
         Block b(0, divide, i*divide, (i+1)*divide);
         g_pque.push(b);
       }
