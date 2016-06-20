@@ -101,7 +101,7 @@ task :final do
       file.puts("----- !BEGIN! ------")
       file.puts("Seed = #{seed}")
 
-      data = Open3.capture3("time java -jar visualizer.jar -seed #{seed} -novis -exec './#{PROBLEM_NAME}'")
+      data = Open3.capture3("ruby tester.rb #{seed}")
       file.puts(data.select{|d| d.is_a?(String) }.flat_map{|d| d.split("\n") })
       file.puts("----- !END! ------")
     end
