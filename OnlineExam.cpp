@@ -49,12 +49,10 @@ class OnlineExam {
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
       memset(g_commit, false, sizeof(g_commit));
-      g_maxScore = 0;
 
       setRandomAnswer();
-      int score = getScore();
-      commit(score-1);
-      g_maxScore = score;
+      g_maxScore = getScore();
+      commit(g_maxScore-1);
 
       int divide = 56;
       for (int i = 0; i < 71; i++) {
@@ -62,8 +60,7 @@ class OnlineExam {
         g_pque.push(b);
       }
 
-      int qsize = g_pque.size();
-      fprintf(stderr,"First Score = %d, queue size = %d\n", g_maxScore, qsize);
+      fprintf(stderr,"First Score = %d\n", g_maxScore);
     }
 
     void run() {
