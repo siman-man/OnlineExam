@@ -28,11 +28,11 @@ struct Block {
   int from2;
   int to2;
 
-  Block(int diff = 0, int length = 0, int from = 0, int to = 0) {
+  Block(int diff = 0, int from = 0, int to = 0) {
     this->diff = diff;
     this->from = from;
     this->to = to;
-    this->length = length;
+    this->length = to - from;
     this->divideCount = 0;
   }
 
@@ -70,7 +70,7 @@ class OnlineExam {
 
       int divide = 56;
       for (int i = 0; i < 71; i++) {
-        Block b(0, divide, i*divide, (i+1)*divide);
+        Block b(0, i*divide, (i+1)*divide);
         g_pque.push(b);
       }
 
@@ -107,7 +107,7 @@ class OnlineExam {
       }
 
       int mid = (block.from + block.to) / 2;
-      Block b1(diff, block.length/2, block.from, mid);
+      Block b1(diff, block.from, mid);
 
       b1.divideCount++;
       b1.from2 = mid;
