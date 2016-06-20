@@ -45,7 +45,6 @@ priority_queue<Block, vector<Block>, greater<Block> > g_pque;
 
 int g_answer[N];
 bool g_commit[N];
-int g_bestAnswer[N];
 int g_maxScore;
 int g_turn;
 const int FIRST_TRY_COUNT = 1;
@@ -55,7 +54,6 @@ class OnlineExam {
     void init() {
       memset(g_answer, 0, sizeof(g_answer));
       memset(g_commit, false, sizeof(g_commit));
-      memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       g_maxScore = 0;
 
       for (int i = 0; i < FIRST_TRY_COUNT; i++) {
@@ -68,9 +66,6 @@ class OnlineExam {
 
         if (g_maxScore < score) {
           g_maxScore = score;
-          memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
-        } else {
-          rollback();
         }
       }
 
@@ -104,7 +99,6 @@ class OnlineExam {
 
       if (g_maxScore < score) {
         g_maxScore = score;
-        memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       } else {
         commit(score-1);
         flipValue(block.from, block.to);
@@ -137,13 +131,6 @@ class OnlineExam {
       for (int i = from; i < to; i++) {
         if (g_commit[i]) continue;
         g_answer[i] ^= 1;
-      }
-    }
-
-    void rollback() {
-      for (int i = 0; i < N; i++) {
-        if (g_commit[i]) continue;
-        g_answer[i] = g_bestAnswer[i];
       }
     }
 
