@@ -45,7 +45,6 @@ int g_answer[N];
 bool g_commit[N];
 int g_maxScore;
 int g_turn;
-const int FIRST_TRY_COUNT = 1;
 
 class OnlineExam {
   public:
@@ -54,17 +53,10 @@ class OnlineExam {
       memset(g_commit, false, sizeof(g_commit));
       g_maxScore = 0;
 
-      for (int i = 0; i < FIRST_TRY_COUNT; i++) {
-        setRandomAnswer();
-
-        int score = getScore();
-
-        commit(score-1);
-
-        if (g_maxScore < score) {
-          g_maxScore = score;
-        }
-      }
+      setRandomAnswer();
+      int score = getScore();
+      commit(score-1);
+      g_maxScore = score;
 
       int divide = 56;
       for (int i = 0; i < 71; i++) {
@@ -77,9 +69,7 @@ class OnlineExam {
     }
 
     void run() {
-      for (g_turn = 0; g_turn < X-FIRST_TRY_COUNT; g_turn++) {
-        commit(g_maxScore-1);
-
+      for (g_turn = 0; g_turn < X-1; g_turn++) {
         Block block = g_pque.top(); g_pque.pop();
         updateAnswerBlock(block);
       }
@@ -92,11 +82,11 @@ class OnlineExam {
 
       int score = getScore();
       int diff = score - g_maxScore;
+      commit(score-1);
 
       if (g_maxScore < score) {
         g_maxScore = score;
       } else {
-        commit(score-1);
         flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
