@@ -107,7 +107,7 @@ class OnlineExam {
         memcpy(g_bestAnswer, g_answer, sizeof(g_answer));
       } else {
         commit(score-1);
-        rollback();
+        flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
           flipValue(block.from2, block.to2);
