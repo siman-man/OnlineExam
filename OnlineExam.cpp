@@ -85,6 +85,7 @@ class OnlineExam {
         flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
+          g_maxScore += 2;
           flipValue(block.to, block.to + block.length);
         }
       }
