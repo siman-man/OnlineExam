@@ -59,8 +59,7 @@ class OnlineExam {
       for (int i = 0; i < FIRST_TRY_COUNT; i++) {
         setRandomAnswer();
 
-        string answer = answer2string();
-        int score = sendAnswer(answer);
+        int score = getScore();
 
         commit(score-1);
 
@@ -93,8 +92,7 @@ class OnlineExam {
 
       flipValue(block.from, block.to);
 
-      string answer = answer2string();
-      int score = sendAnswer(answer);
+      int score = getScore();
       int diff = score - g_maxScore;
 
       if (g_maxScore < score) {
@@ -132,6 +130,11 @@ class OnlineExam {
         if (g_commit[i]) continue;
         g_answer[i] ^= 1;
       }
+    }
+
+    int getScore() {
+      string answer = answer2string();
+      return sendAnswer(answer);
     }
 
     int sendAnswer(string answer) {
