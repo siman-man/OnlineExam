@@ -71,7 +71,7 @@ class OnlineExam {
     }
 
     void updateAnswerBlock(Block block) {
-      fprintf(stderr,"%d -> %d, block diff = %d\n", block.from, block.to, block.diff);
+      //fprintf(stderr,"%d -> %d, block diff = %d\n", block.from, block.to, block.diff);
 
       flipValue(block.from, block.to);
 
@@ -85,14 +85,14 @@ class OnlineExam {
         flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
-          g_maxScore += 2;
+          g_maxScore += 3;
           flipValue(block.to, block.to + block.length);
         }
       }
 
       int mid = (block.from + block.to) / 2;
       Block b1(diff, block.from, mid);
-      b1.divideCount++;
+      b1.divideCount = block.divideCount + 1;
 
       g_pque.push(b1);
 
