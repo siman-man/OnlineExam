@@ -37,7 +37,7 @@ struct Block {
   }
 
   bool operator >(const Block &b) const{
-    return length - 5*abs(diff) < b.length - 5*abs(b.diff);
+    return length - 4*abs(diff) < b.length - 4*abs(b.diff);
   }    
 };
 
