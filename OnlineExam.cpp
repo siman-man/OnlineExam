@@ -25,8 +25,6 @@ struct Block {
   int to;
   int length;
   int divideCount;
-  int from2;
-  int to2;
 
   Block(int diff = 0, int from = 0, int to = 0) {
     this->diff = diff;
@@ -102,16 +100,13 @@ class OnlineExam {
         flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
-          flipValue(block.from2, block.to2);
+          flipValue(block.to, block.to + block.length);
         }
       }
 
       int mid = (block.from + block.to) / 2;
       Block b1(diff, block.from, mid);
-
       b1.divideCount++;
-      b1.from2 = mid;
-      b1.to2 = block.to;
 
       g_pque.push(b1);
 
