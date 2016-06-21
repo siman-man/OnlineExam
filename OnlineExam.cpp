@@ -91,7 +91,7 @@ class OnlineExam {
         flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
-          g_maxScore += 3;
+          g_maxScore += 3.5;
           flipValue(block.to, block.to + block.length);
         }
       }
