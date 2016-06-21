@@ -41,7 +41,7 @@ priority_queue<Block, vector<Block>, greater<Block> > g_pque;
 
 int g_answer[N];
 bool g_commit[N];
-int g_maxScore;
+double g_maxScore;
 int g_turn;
 
 class OnlineExam {
@@ -55,7 +55,7 @@ class OnlineExam {
       commit(g_maxScore-1);
 
       if (g_maxScore < 4000) {
-        g_maxScore += 2*(2000-(g_maxScore-2000));
+        g_maxScore += 2 * (2000-(g_maxScore-2000));
         flipValue(0, N);
       }
 
@@ -68,7 +68,7 @@ class OnlineExam {
         g_pque.push(b);
       }
 
-      fprintf(stderr,"First Score = %d\n", g_maxScore);
+      fprintf(stderr,"First Score = %4.2f\n", g_maxScore);
     }
 
     void run() {
