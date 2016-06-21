@@ -5,7 +5,6 @@
 using namespace std;
 
 const int N = 5000;
-const int K = 2000;
 const int X =  100;
 
 unsigned long long xor128(){
@@ -31,7 +30,7 @@ struct Block {
   }
 
   bool operator >(const Block &b) const{
-    return length - 4*abs(diff) < b.length - 4*abs(b.diff);
+    return abs(diff) / (double)length > abs(b.diff) / (double)b.length;
   }    
 };
 
@@ -65,8 +64,6 @@ class OnlineExam {
         from += divide;
         g_pque.push(b);
       }
-
-      fprintf(stderr,"First Score = %4.2f\n", g_maxScore);
     }
 
     void run() {
@@ -77,8 +74,6 @@ class OnlineExam {
     }
 
     void updateAnswerBlock(Block block) {
-      //fprintf(stderr,"%d -> %d, block diff = %d\n", block.from, block.to, block.diff);
-
       flipValue(block.from, block.to);
 
       int score = getScore();
@@ -91,7 +86,7 @@ class OnlineExam {
         flipValue(block.from, block.to);
 
         if (block.divideCount >= 1 && block.diff > diff) {
-          g_maxScore += 3.5;
+          g_maxScore += 3.0;
           flipValue(block.to, block.to + block.length);
         }
       }
@@ -101,8 +96,6 @@ class OnlineExam {
       b1.divideCount = block.divideCount + 1;
 
       g_pque.push(b1);
-
-      //fprintf(stderr,"turn %d: sc = %d, max sc = %d, diff = %d\n", g_turn, score, g_maxScore, diff);
     }
 
     void commit(int index) {
@@ -144,7 +137,6 @@ class OnlineExam {
 
     void setRandomAnswer() {
       for (int i = 0; i < N; i++) {
-        if (g_commit[i]) continue;
         g_answer[i] = xor128()%2;
       }
     }
