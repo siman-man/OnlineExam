@@ -54,9 +54,17 @@ class OnlineExam {
       g_maxScore = getScore();
       commit(g_maxScore-1);
 
+      if (g_maxScore < 4000) {
+        g_maxScore += 2*(2000-(g_maxScore-2000));
+        flipValue(0, N);
+      }
+
       int divide = 56;
-      for (int i = 0; i < 71; i++) {
-        Block b(0, i*divide, (i+1)*divide);
+      int from = 0;
+
+      while (from + divide < g_maxScore) {
+        Block b(0, from, from+divide);
+        from += divide;
         g_pque.push(b);
       }
 
@@ -96,7 +104,7 @@ class OnlineExam {
 
       g_pque.push(b1);
 
-      fprintf(stderr,"turn %d: sc = %d, max sc = %d\n", g_turn, score, g_maxScore);
+      //fprintf(stderr,"turn %d: sc = %d, max sc = %d, diff = %d\n", g_turn, score, g_maxScore, diff);
     }
 
     void commit(int index) {
