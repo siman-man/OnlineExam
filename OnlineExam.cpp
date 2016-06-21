@@ -4,8 +4,6 @@
 
 using namespace std;
 
-typedef long long ll;
-
 const int N = 5000;
 const int K = 2000;
 const int X =  100;
